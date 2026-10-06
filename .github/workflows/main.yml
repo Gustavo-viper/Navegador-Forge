@@ -55,7 +55,7 @@ jobs:
 
             ## 🖥️ Windows
 
-            Baixe o instalador `ForgeBrowser-Setup-${{ github.ref_name }}.exe` abaixo e execute-o.
+            Baixe o instalador `.exe` abaixo e execute-o para instalar o Forge Browser.
 
             ## Requisitos
             - Windows 10 ou Windows 11
