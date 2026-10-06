@@ -1,0 +1,36 @@
+appId: studios.forge.browser
+productName: Forge Browser
+copyright: Copyright (c) Forge Studios
+asar: true
+npmRebuild: false
+electronVersion: 41.7.1
+directories:
+  output: ../../release
+  buildResources: build
+files:
+  - dist/**/*
+  - electron/**/*
+  - package.json
+  - '!node_modules/**/*'
+extraMetadata:
+  name: forge-browser
+  main: electron/main.cjs
+  version: 1.0.0
+  description: Forge Browser by Forge Studios
+  author: Forge Studios
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+  icon: build/icon.ico
+  artifactName: Forge Browser Setup.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createStartMenuShortcut: true
+  createDesktopShortcut: false
+  shortcutName: Forge Browser
+  deleteAppDataOnUninstall: false
+  include: build/installer.nsh
