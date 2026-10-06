@@ -5,7 +5,7 @@ asar: true
 npmRebuild: false
 electronVersion: 41.7.1
 directories:
-  output: ../../release
+  output: release
   buildResources: build
 files:
   - dist/**/*
@@ -23,8 +23,7 @@ win:
     - target: nsis
       arch:
         - x64
-  icon: build/icon.ico
-  artifactName: Forge Browser Setup.${ext}
+  artifactName: ForgeBrowser-Setup-${version}.${ext}
 nsis:
   oneClick: false
   perMachine: false
