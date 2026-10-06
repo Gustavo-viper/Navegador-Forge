@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "start": "vite preview --host 0.0.0.0 --port $PORT",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -15,7 +16,6 @@
     "electron-builder": "^26.15.3",
     "jpeg-js": "^0.4.4",
     "lucide-react": "^1.52.0",
-    "pngjs": "^7.0.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "tailwind-merge": "3.4.0"
@@ -25,7 +25,6 @@
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.3.2",
