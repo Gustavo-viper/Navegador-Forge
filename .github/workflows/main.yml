@@ -6,7 +6,6 @@ on:
       - main
     tags:
       - "v*.*.*"
-
   workflow_dispatch:
 
 permissions:
@@ -39,7 +38,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ForgeBrowser-Windows
-          path: dist/*.exe
+          path: release/*.exe
+          if-no-files-found: error
           retention-days: 90
 
       - name: 🚀 Publicar Release
@@ -55,18 +55,15 @@ jobs:
 
             ## 🖥️ Windows
 
-            Baixe o instalador abaixo e execute:
-
-            `ForgeBrowser-Setup-*.exe`
+            Baixe o instalador `ForgeBrowser-Setup-${{ github.ref_name }}.exe` abaixo e execute-o.
 
             ## Requisitos
-
             - Windows 10 ou Windows 11
             - 64 bits
 
             ---
             **Forge Studios**
-          files: dist/*.exe
+          files: release/*.exe
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
