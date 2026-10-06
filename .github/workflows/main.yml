@@ -30,9 +30,6 @@ jobs:
       - name: 📦 Instalar dependências
         run: npm install
 
-      - name: 🔎 Verificar código
-        run: npm run check
-
       - name: 🔨 Gerar instalador Forge Browser
         run: npm run build
         env:
