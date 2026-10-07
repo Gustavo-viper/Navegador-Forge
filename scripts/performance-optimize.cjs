@@ -23,14 +23,20 @@ replaceOnce(
 
 replaceOnce(
   "app.setName('Forge Browser');\n",
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  'low CPU Chromium flags'
+  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
+  'turbo Chromium flags'
 );
 
 replaceOnce(
+  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
+  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
+  'turbo Chromium flags guard'
+);
+
+replaceOnce(
+  "app.setName('Forge Browser');\n",
   "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  'low CPU Chromium flags guard'
+  'low CPU Chromium flags'
 );
 
 replaceOnce(
@@ -39,8 +45,6 @@ replaceOnce(
   'application menu'
 );
 
-// Keep the auto-updater import idempotent. Older source may already import
-// setupAutoUpdater; extend that same declaration instead of creating a duplicate.
 const updaterImport = "const { setupAutoUpdater } = require('./auto-updater.cjs');";
 const updaterFullImport = "const { setupAutoUpdater, checkForUpdates, installUpdate } = require('./auto-updater.cjs');";
 if (source.includes(updaterImport) && !source.includes(updaterFullImport)) {
@@ -124,7 +128,7 @@ replaceOnce(
 
 replaceOnce(
   "  view.setBackgroundColor('#f9f9f9');\n  view.setVisible(false);",
-  "  view.setBackgroundColor('#f9f9f9');\n  // Chromium aggressively throttles timers/animations for inactive tabs.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
+  "  view.setBackgroundColor('#f9f9f9');\n  // Keep background tabs throttled so Turbo prioritizes the active page/video.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
   'background throttling'
 );
 
@@ -165,5 +169,5 @@ replaceOnce(
 
 if (changed) fs.writeFileSync(file, source, 'utf8');
 console.log(changed
-  ? 'Forge Browser performance and automatic-update optimizations applied safely.'
-  : 'Forge Browser performance and automatic-update optimizations already applied; nothing to change.');
+  ? 'Forge Browser Turbo performance, navigation and media optimizations applied safely.'
+  : 'Forge Browser performance optimizations already applied; nothing to change.');
