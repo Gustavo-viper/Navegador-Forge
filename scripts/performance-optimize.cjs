@@ -23,6 +23,18 @@ replaceOnce(
 
 replaceOnce(
   "app.setName('Forge Browser');\n",
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
+  'low CPU Chromium flags'
+);
+
+replaceOnce(
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
+  'low CPU Chromium flags guard'
+);
+
+replaceOnce(
+  "app.setName('Forge Browser');\n",
   "app.setName('Forge Browser');\n// Avoid Electron's default menu when the Forge UI provides its own controls.\nMenu.setApplicationMenu(null);\n",
   'application menu'
 );
@@ -42,9 +54,6 @@ if (source.includes(updaterImport) && !source.includes(updaterFullImport)) {
   );
 }
 
-// Replace the entire tracker declaration atomically. This prevents a half-applied
-// optimization such as `const trackerHosts = [` followed by `]);`, which breaks
-// the Electron main process at startup.
 const trackerBlock = /const trackerHosts = new Set\(\[\n([\s\S]*?)\n\]\);/;
 if (trackerBlock.test(source)) {
   source = source.replace(trackerBlock, 'const trackerHosts = [\n$1\n];');
@@ -115,7 +124,7 @@ replaceOnce(
 
 replaceOnce(
   "  view.setBackgroundColor('#f9f9f9');\n  view.setVisible(false);",
-  "  view.setBackgroundColor('#f9f9f9');\n  // Allow Chromium to throttle timers and animations for inactive tabs.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
+  "  view.setBackgroundColor('#f9f9f9');\n  // Chromium aggressively throttles timers/animations for inactive tabs.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
   'background throttling'
 );
 
