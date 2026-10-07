@@ -64,6 +64,7 @@ jobs:
           retention-days: 90
 
       - name: 🏷️ Criar release/tag válida para a versão
+        id: release
         if: github.ref == 'refs/heads/main'
         shell: pwsh
         env:
@@ -73,13 +74,15 @@ jobs:
           $tag = "v$version"
           gh release view $tag --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Forge Browser $tag" --notes "## 🔥 Forge Browser $tag`n`nAtualização oficial do Forge Browser.`n`n- Instalador Windows 64-bit`n- Atualização automática`n- Melhorias de desempenho e estabilidade" --latest
+            gh release create $tag --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title "Forge Browser $tag" --notes "## 🔥 Forge Browser $tag`n`nAtualização oficial do Forge Browser.`n`n- Instalador Windows 64-bit`n- Atualização automática`n`n- Personalização Forge`n- Login com Google`n- Wallpapers animados" --latest
+            "created=true" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           } else {
-            Write-Host "Release $tag já existe; usando a release existente."
+            Write-Host "Release $tag já existe; não haverá novo upload para a mesma versão."
+            "created=false" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           }
 
       - name: 🚀 Publicar release com atualização automática
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/') || (github.ref == 'refs/heads/main' && steps.release.outputs.created == 'true')
         shell: pwsh
         run: npx electron-builder --win nsis --x64 --publish always
         env:
