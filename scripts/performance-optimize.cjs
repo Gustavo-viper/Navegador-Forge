@@ -33,16 +33,25 @@ replaceOnce(
   'automatic updater import'
 );
 
-replaceOnce(
-  "const trackerHosts = new Set([",
-  "const trackerHosts = [",
-  'tracker list allocation'
-);
+// Replace the entire tracker declaration atomically. This prevents a half-applied
+// optimization such as `const trackerHosts = [` followed by `]);`, which breaks
+// the Electron main process at startup.
+const trackerBlock = /const trackerHosts = new Set\(\[\n([\s\S]*?)\n\]\);/;
+if (trackerBlock.test(source)) {
+  source = source.replace(trackerBlock, 'const trackerHosts = [\n$1\n];');
+  changed = true;
+} else {
+  const brokenTrackerBlock = /const trackerHosts = \[\n([\s\S]*?)\n\]\);/;
+  if (brokenTrackerBlock.test(source)) {
+    source = source.replace(brokenTrackerBlock, 'const trackerHosts = [\n$1\n];');
+    changed = true;
+  }
+}
 
 replaceOnce(
   "  'hotjar.com', 'segment.io', 'mixpanel.com', 'adsrvr.org',\n]);",
   "  'hotjar.com', 'segment.io', 'mixpanel.com', 'adsrvr.org',\n];",
-  'tracker list closing'
+  'tracker list closing fallback'
 );
 
 replaceOnce(
@@ -138,5 +147,5 @@ replaceOnce(
 
 if (changed) fs.writeFileSync(file, source, 'utf8');
 console.log(changed
-  ? 'Forge Browser v1.2 performance and automatic-update optimizations applied.'
+  ? 'Forge Browser performance and automatic-update optimizations applied safely.'
   : 'Forge Browser performance and automatic-update optimizations already applied; nothing to change.');
