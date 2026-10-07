@@ -27,11 +27,20 @@ replaceOnce(
   'application menu'
 );
 
-replaceOnce(
-  "const { checkLatestRelease } = require('./updates.cjs');",
-  "const { checkLatestRelease } = require('./updates.cjs');\nconst { setupAutoUpdater, checkForUpdates, installUpdate } = require('./auto-updater.cjs');",
-  'automatic updater import'
-);
+// Keep the auto-updater import idempotent. Older source may already import
+// setupAutoUpdater; extend that same declaration instead of creating a duplicate.
+const updaterImport = "const { setupAutoUpdater } = require('./auto-updater.cjs');";
+const updaterFullImport = "const { setupAutoUpdater, checkForUpdates, installUpdate } = require('./auto-updater.cjs');";
+if (source.includes(updaterImport) && !source.includes(updaterFullImport)) {
+  source = source.replace(updaterImport, updaterFullImport);
+  changed = true;
+} else if (!source.includes(updaterFullImport)) {
+  replaceOnce(
+    "const { checkLatestRelease } = require('./updates.cjs');",
+    "const { checkLatestRelease } = require('./updates.cjs');\n" + updaterFullImport,
+    'automatic updater import'
+  );
+}
 
 // Replace the entire tracker declaration atomically. This prevents a half-applied
 // optimization such as `const trackerHosts = [` followed by `]);`, which breaks
