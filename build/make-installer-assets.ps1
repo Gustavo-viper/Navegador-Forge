@@ -2,6 +2,13 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $outDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$projectDir = Split-Path -Parent $outDir
+$packageJsonPath = Join-Path $projectDir 'package.json'
+$packageVersion = '1.2.1'
+if (Test-Path $packageJsonPath) {
+    $package = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
+    if ($package.version) { $packageVersion = [string]$package.version }
+}
 
 $navy = [System.Drawing.Color]::FromArgb(255, 11, 18, 32)
 $navy2 = [System.Drawing.Color]::FromArgb(255, 17, 24, 39)
@@ -34,7 +41,7 @@ $fontTiny = New-Font 'Segoe UI' 7.5 ([System.Drawing.FontStyle]::Regular)
 $g.DrawString('F', $fontF, (New-Object System.Drawing.SolidBrush($orange)), 14, 9)
 $g.DrawString('FORGE', $fontSmall, (New-Object System.Drawing.SolidBrush($white)), 42, 8)
 $g.DrawString('BROWSER', $fontSmall, (New-Object System.Drawing.SolidBrush($orange)), 42, 24)
-$g.DrawString('Forge Studios  •  Gamer Browser', $fontTiny, (New-Object System.Drawing.SolidBrush($muted)), 42, 42)
+$g.DrawString("Forge Studios  •  Gamer Browser  •  v$packageVersion", $fontTiny, (New-Object System.Drawing.SolidBrush($muted)), 42, 42)
 
 $fontF.Dispose(); $fontSmall.Dispose(); $fontTiny.Dispose(); $g.Dispose()
 Save-Bmp $header (Join-Path $outDir 'installerHeader.bmp')
@@ -73,10 +80,10 @@ $g.DrawString('BROWSER', $fontTitle, $brushOrange, 22, 157)
 $g.DrawString('NAVEGADOR GAMER', $fontBody, $brushWhite, 22, 196)
 $g.DrawString('Rápido. Privado. Forge.', $fontBody, $brushMuted, 22, 216)
 $g.DrawString('FORGE STUDIOS', $fontBottom, $brushWhite, 22, 278)
-$g.DrawString('v1.2', $fontBottom, $brushOrange, 119, 278)
+$g.DrawString("v$packageVersion", $fontBottom, $brushOrange, 119, 278)
 
 $fontLogo.Dispose(); $fontTitle.Dispose(); $fontBody.Dispose(); $fontBottom.Dispose()
 $brushNavy2.Dispose(); $brushOrange.Dispose(); $brushWhite.Dispose(); $brushMuted.Dispose(); $g.Dispose()
 Save-Bmp $side (Join-Path $outDir 'installerSidebar.bmp')
 
-Write-Host 'Forge installer artwork generated successfully.'
+Write-Host "Forge installer artwork generated successfully for v$packageVersion."
