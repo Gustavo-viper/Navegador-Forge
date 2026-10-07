@@ -21,7 +21,7 @@ files:
 extraMetadata:
   name: forge-browser
   main: electron/launcher.cjs
-  version: 2.2.7
+  version: 2.2.8
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
