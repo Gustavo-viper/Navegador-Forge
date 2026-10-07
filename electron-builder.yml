@@ -18,6 +18,11 @@ extraMetadata:
   version: 1.0.0
   description: Forge Browser by Forge Studios
   author: Forge Studios
+publish:
+  provider: github
+  owner: Gustavo-viper
+  repo: Navegador-Forge
+  releaseType: release
 win:
   target:
     - target: nsis
