@@ -80,13 +80,12 @@ $g.FillRectangle($brushOrange, 0, 0, 164, 7)
 $g.FillRectangle($brushOrange, 0, 62, 5, 252)
 
 # Abstract Forge Browser window.
-$g.FillRoundedRectangle = $null
 $g.FillRectangle($brushNavy3, 18, 17, 128, 35)
 $g.DrawRectangle($penSoft, 18, 17, 128, 35)
 $g.FillEllipse($brushGreen, 25, 25, 5, 5)
 $g.FillEllipse($brushOrange, 33, 25, 5, 5)
 $g.FillEllipse($brushMuted, 41, 25, 5, 5)
-$g.FillRectangle($brushNavy, 25, 37, 96, 8)
+$g.FillRectangle($brushNavy2, 25, 37, 96, 8)
 $g.DrawLine($penOrange, 29, 41, 73, 41)
 $g.DrawLine($penSoft, 80, 41, 111, 41)
 
