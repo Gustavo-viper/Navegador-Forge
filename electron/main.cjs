@@ -21,6 +21,8 @@ const trackerHosts = new Set([
   'google-analytics.com', 'googletagmanager.com', 'doubleclick.net',
   'connect.facebook.net', 'facebook.net', 'scorecardresearch.com',
   'hotjar.com', 'segment.io', 'mixpanel.com', 'adsrvr.org',
+  'adnxs.com', 'criteo.com', 'taboola.com', 'outbrain.com',
+  'quantserve.com', 'zedo.com', 'rubiconproject.com',
 ]);
 
 function shellState(event) {
@@ -56,7 +58,7 @@ function announceDownload(record) {
 function savePathFor(filename) {
   const folder = nativeSettings.downloadPath && fs.existsSync(nativeSettings.downloadPath)
     ? nativeSettings.downloadPath : app.getPath('downloads');
-  const safeName = path.basename(filename).replace(/[<>:"/\\|?*\x00-\x1f]/g, '_') || 'download';
+  const safeName = path.basename(filename).replace(/[<>:\"/\\|?*\x00-\x1f]/g, '_') || 'download';
   const extension = path.extname(safeName);
   const base = path.basename(safeName, extension);
   let destination = path.join(folder, safeName);
@@ -89,7 +91,7 @@ function setupSession(ses) {
   ses.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (details, callback) => {
     if (!nativeSettings.blockTrackers || details.resourceType === 'mainFrame') return callback({});
     try {
-      const host = new URL(details.url).hostname;
+      const host = new URL(details.url).hostname.toLowerCase();
       const blocked = [...trackerHosts].some((domain) => host === domain || host.endsWith(`.${domain}`));
       callback({ cancel: blocked });
     } catch { callback({}); }
@@ -139,6 +141,19 @@ function setupSession(ses) {
     });
   });
 }
+
+app.on('certificate-error', (event, _webContents, _url, _error, _certificate, callback) => {
+  // Forge never silently bypasses invalid TLS certificates. Users can continue only when the
+  // site presents a certificate trusted by Chromium/Windows.
+  event.preventDefault();
+  callback(false);
+});
+
+app.on('render-process-gone', (_event, details) => {
+  if (details.reason !== 'clean-exit' && details.reason !== 'killed') {
+    console.warn(`[Forge Security] renderer process ended: ${details.reason}`);
+  }
+});
 
 function contentBounds(state) {
   const size = state.win.contentView.getBounds();
@@ -320,160 +335,144 @@ function registerIpc() {
     const state = shellState(event);
     const tab = state.tabs.get(id);
     if (!tab) return false;
-    state.win.contentView.removeChildView(tab.view);
-    tab.view.webContents.close();
+    if (!tab.view.webContents.isDestroyed()) tab.view.webContents.close();
     state.tabs.delete(id);
     if (state.activeId === id) state.activeId = null;
-    if (tab.private && !state.privateMode) {
-      session.fromPartition(tab.partition).clearStorageData().catch(() => {});
-      for (const [downloadId, record] of downloads) {
-        if (record.tabId === id) { liveDownloads.get(downloadId)?.cancel(); downloads.delete(downloadId); }
-      }
-    }
+    showActiveView(state);
     return true;
   });
-  ipcMain.handle('tab:action', (event, id, action) => {
+  ipcMain.handle('tab:action', async (event, id, action) => {
     const state = shellState(event);
     const tab = state.tabs.get(id);
     if (!tab) return false;
     const contents = tab.view.webContents;
     if (action === 'back' && contents.navigationHistory.canGoBack()) contents.navigationHistory.goBack();
     else if (action === 'forward' && contents.navigationHistory.canGoForward()) contents.navigationHistory.goForward();
-    else if (action === 'reload') {
-      const failed = Boolean(tab.error);
-      tab.error = null;
-      showActiveView(state);
-      if (failed && tab.requestedUrl) contents.loadURL(tab.requestedUrl).catch(() => {});
-      else if (contents.getURL()) contents.reload();
-      else if (tab.requestedUrl) contents.loadURL(tab.requestedUrl).catch(() => {});
-    } else if (action === 'stop') contents.stop();
+    else if (action === 'reload') contents.reload();
+    else if (action === 'stop') contents.stop();
     else return false;
     return true;
   });
-  ipcMain.handle('window:new-private', (event) => { shellState(event); createWindow(true); return true; });
+  ipcMain.handle('window:new-private', (event) => {
+    shellState(event);
+    createWindow(true);
+    return true;
+  });
   ipcMain.handle('window:action', (event, action) => {
-    const { win } = shellState(event);
-    if (action === 'minimize') win.minimize();
-    else if (action === 'maximize') win.isMaximized() ? win.unmaximize() : win.maximize();
-    else if (action === 'close') win.close();
+    const state = shellState(event);
+    if (action === 'minimize') state.win.minimize();
+    else if (action === 'maximize') state.win.isMaximized() ? state.win.unmaximize() : state.win.maximize();
+    else if (action === 'close') state.win.close();
     else return false;
     return true;
   });
   ipcMain.handle('downloads:list', (event) => visibleDownloads(shellState(event)));
-  ipcMain.handle('downloads:open-folder', async (event) => {
-    shellState(event);
-    const folder = nativeSettings.downloadPath && fs.existsSync(nativeSettings.downloadPath)
-      ? nativeSettings.downloadPath : app.getPath('downloads');
-    return shell.openPath(folder);
-  });
-  ipcMain.handle('downloads:action', async (event, id, action) => {
+  ipcMain.handle('downloads:action', (event, id, action) => {
     const state = shellState(event);
     const record = downloads.get(id);
-    if (!record || !visibleDownloads(state).includes(record)) return false;
+    if (!record || (record.private && record.windowId !== state.win.id)) return false;
     const item = liveDownloads.get(id);
-    if (action === 'pause' && item) item.pause();
-    else if (action === 'resume' && item && (item.isPaused() || item.canResume())) item.resume();
+    if (action === 'pause' && item && !item.isPaused()) item.pause();
+    else if (action === 'resume' && item && item.isPaused()) item.resume();
     else if (action === 'cancel' && item) item.cancel();
-    else if (action === 'open' && record.status === 'completed' && fs.existsSync(record.path)) return shell.openPath(record.path);
-    else if (action === 'folder' && record.path && fs.existsSync(record.path)) shell.showItemInFolder(record.path);
+    else if (action === 'open' && record.path) return shell.openPath(record.path).then(() => true);
+    else if (action === 'folder' && record.path) return shell.showItemInFolder(record.path) || true;
     else return false;
     return true;
   });
-  ipcMain.handle('system:metrics', (event) => {
+  ipcMain.handle('downloads:open-folder', async (event) => {
     shellState(event);
-    const processes = app.getAppMetrics();
+    const folder = nativeSettings.downloadPath || app.getPath('downloads');
+    await shell.openPath(folder);
+    return folder;
+  });
+  ipcMain.handle('system:metrics', (event) => {
+    const state = shellState(event);
     return {
-      ramMB: Math.round(processes.reduce((sum, metric) => sum + (metric.memory?.workingSetSize || 0), 0) / 1024),
-      cpuPercent: Math.round(processes.reduce((sum, metric) => sum + (metric.cpu?.percentCPUUsage || 0), 0) * 10) / 10,
-      processes: processes.length,
-      activeDownloads: [...liveDownloads.values()].filter((item) => !item.isPaused()).length,
+      ramMB: Math.round(process.memoryUsage().rss / 1024 / 1024),
+      cpuPercent: Math.min(100, Math.round(process.cpuUsage().user / 10000)),
+      processes: state.tabs.size + 1,
+      activeDownloads: [...downloads.values()].filter((item) => item.status === 'progressing').length,
     };
   });
-  ipcMain.handle('settings:get', (event) => { shellState(event); return { ...nativeSettings, downloadPath: nativeSettings.downloadPath || app.getPath('downloads') }; });
+  ipcMain.handle('settings:get', (event) => { shellState(event); return nativeSettings; });
   ipcMain.handle('settings:set', (event, patch) => {
     shellState(event);
-    nativeSettings = { ...nativeSettings, ...validateSettingsPatch(patch) };
+    nativeSettings = validateSettingsPatch(patch);
     writeJson('settings.json', nativeSettings);
-    return { ...nativeSettings, downloadPath: nativeSettings.downloadPath || app.getPath('downloads') };
+    return nativeSettings;
   });
   ipcMain.handle('settings:choose-folder', async (event) => {
     const state = shellState(event);
-    const result = await dialog.showOpenDialog(state.win, { properties: ['openDirectory'], defaultPath: nativeSettings.downloadPath || app.getPath('downloads') });
-    return result.canceled ? null : result.filePaths[0];
+    const result = await dialog.showOpenDialog(state.win, { properties: ['openDirectory', 'createDirectory'] });
+    if (result.canceled || !result.filePaths[0]) return null;
+    nativeSettings = validateSettingsPatch({ downloadPath: result.filePaths[0] });
+    writeJson('settings.json', nativeSettings);
+    return result.filePaths[0];
   });
   ipcMain.handle('privacy:clear', async (event, kind) => {
     const state = shellState(event);
-    if (!['cache', 'cookies', 'storage', 'all'].includes(kind)) throw new Error('Operação inválida.');
-    const ses = session.fromPartition(state.partition);
-    if (kind === 'cache' || kind === 'all') await ses.clearCache();
-    if (kind === 'cookies' || kind === 'all') await ses.clearStorageData({ storages: ['cookies'] });
-    if (kind === 'storage' || kind === 'all') await ses.clearStorageData({ storages: ['localstorage', 'indexdb', 'serviceworkers'] });
+    const target = state.privateMode ? session.fromPartition(state.partition) : session.fromPartition('persist:forge-web');
+    const map = {
+      cache: ['cache'], cookies: ['cookies'], storage: ['localstorage', 'serviceworkers'],
+      all: ['cache', 'cookies', 'localstorage', 'serviceworkers', 'downloads'],
+    };
+    const dataTypes = map[kind] || map.all;
+    await target.clearStorageData({ storages: dataTypes });
     return true;
   });
   ipcMain.handle('privacy:cookies', async (event) => {
-    const state = shellState(event);
-    const cookies = await session.fromPartition(state.partition).cookies.get({});
-    const groups = new Map();
-    for (const cookie of cookies) groups.set(cookie.domain, (groups.get(cookie.domain) || 0) + 1);
-    return [...groups].map(([domain, count]) => ({ domain, count })).sort((a, b) => a.domain.localeCompare(b.domain));
+    shellState(event);
+    const cookies = await session.fromPartition('persist:forge-web').cookies.get({});
+    const grouped = new Map();
+    for (const cookie of cookies) grouped.set(cookie.domain, (grouped.get(cookie.domain) || 0) + 1);
+    return [...grouped.entries()].map(([domain, count]) => ({ domain, count }));
   });
   ipcMain.handle('privacy:delete-cookies', async (event, domain) => {
-    const state = shellState(event);
-    if (typeof domain !== 'string' || domain.length > 255) return false;
-    const cookieStore = session.fromPartition(state.partition).cookies;
-    const cookies = await cookieStore.get({});
-    for (const cookie of cookies.filter((entry) => entry.domain === domain)) {
+    shellState(event);
+    const cookies = await session.fromPartition('persist:forge-web').cookies.get({ domain });
+    for (const cookie of cookies) {
+      const scheme = cookie.secure ? 'https' : 'http';
       const host = cookie.domain.replace(/^\./, '');
-      await cookieStore.remove(`${cookie.secure ? 'https' : 'http'}://${host}${cookie.path}`, cookie.name);
+      const url = `${scheme}://${host}${cookie.path || '/'}`;
+      try { await session.fromPartition('persist:forge-web').cookies.remove(url, cookie.name); } catch { /* Continue cleanup. */ }
     }
     return true;
   });
   ipcMain.handle('updates:check', async (event) => {
     shellState(event);
-    const repository = nativeSettings.releaseRepository || process.env.FORGE_RELEASES_REPO || '';
-    const result = await checkLatestRelease(repository, app.isPackaged ? app.getVersion() : '1.0.0');
-    latestRelease = result.url ? { url: result.url, version: result.version } : null;
-    const { url, ...publicResult } = result;
-    return publicResult;
+    latestRelease = await checkLatestRelease();
+    return latestRelease;
   });
   ipcMain.handle('updates:open-release', async (event) => {
     shellState(event);
-    if (!latestRelease?.url || !/^https:\/\/github\.com\//.test(latestRelease.url)) return false;
-    await shell.openExternal(latestRelease.url);
+    const url = latestRelease?.url || 'https://github.com/Gustavo-viper/Navegador-Forge/releases/latest';
+    await shell.openExternal(url);
     return true;
   });
   ipcMain.handle('system:default-apps', async (event) => {
     shellState(event);
-    if (process.platform !== 'win32') return false;
-    await shell.openExternal('ms-settings:defaultapps');
+    if (process.platform === 'win32') await shell.openExternal('ms-settings:defaultapps');
     return true;
   });
   ipcMain.handle('media:action', async (event, id, action) => {
     const state = shellState(event);
     const tab = state.tabs.get(id);
-    if (!tab || !['pip', 'play', 'pause', 'mute', 'unmute', 'close-pip'].includes(action)) return { ok: false, message: 'Abra uma aba com vídeo primeiro.' };
-    const script = `(() => {
-      const video = [...document.querySelectorAll('video')].find((element) => !element.paused) || document.querySelector('video');
-      if (!video) return { ok: false, message: 'Nenhum vídeo encontrado nesta página.' };
-      if (${JSON.stringify(action)} === 'pip') return video.requestPictureInPicture().then(() => ({ ok: true }));
-      if (${JSON.stringify(action)} === 'close-pip') return document.pictureInPictureElement ? document.exitPictureInPicture().then(() => ({ ok: true })) : { ok: false, message: 'O mini player não está aberto.' };
-      if (${JSON.stringify(action)} === 'play') return video.play().then(() => ({ ok: true }));
-      if (${JSON.stringify(action)} === 'pause') video.pause();
-      if (${JSON.stringify(action)} === 'mute') video.muted = true;
-      if (${JSON.stringify(action)} === 'unmute') video.muted = false;
-      return { ok: true };
-    })()`;
-    try { return await tab.view.webContents.executeJavaScript(script, true); }
-    catch { return { ok: false, message: 'Este site não permitiu controlar o vídeo.' }; }
+    if (!tab) return { ok: false, message: 'Aba não encontrada.' };
+    const contents = tab.view.webContents;
+    if (action === 'pip') { await contents.executeJavaScript('document.pictureInPictureEnabled ? (document.pictureInPictureElement || document.querySelector("video"))?.requestPictureInPicture() : Promise.reject(new Error("PIP indisponível"))', true); return { ok: true }; }
+    if (action === 'play') await contents.executeJavaScript('document.querySelectorAll("video,audio").forEach((m)=>m.play().catch(()=>{}))', true);
+    else if (action === 'pause') await contents.executeJavaScript('document.querySelectorAll("video,audio").forEach((m)=>m.pause())', true);
+    else if (action === 'mute') await contents.executeJavaScript('document.querySelectorAll("video,audio").forEach((m)=>m.muted=true)', true);
+    else if (action === 'unmute') await contents.executeJavaScript('document.querySelectorAll("video,audio").forEach((m)=>m.muted=false)', true);
+    else if (action === 'close-pip') await contents.executeJavaScript('document.pictureInPictureElement?.document?.exitPictureInPicture?.()', true);
+    else return { ok: false, message: 'Ação de mídia inválida.' };
+    return { ok: true };
   });
 }
 
 app.whenReady().then(() => {
   nativeSettings = loadNativeSettings();
-  for (const record of readJson('downloads.json', [])) {
-    downloads.set(record.id, { ...record, status: record.status === 'progressing' || record.status === 'paused' ? 'interrupted' : record.status });
-  }
-  setupSession(session.fromPartition('persist:forge-web'));
   registerIpc();
   createWindow();
   setupAutoUpdater();
