@@ -23,20 +23,8 @@ replaceOnce(
 
 replaceOnce(
   "app.setName('Forge Browser');\n",
-  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
+  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path while retaining Chromium safety.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
   'turbo Chromium flags'
-);
-
-replaceOnce(
-  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  "app.setName('Forge Browser');\n// Forge Turbo: keep Chromium on the GPU/network fast path without disabling safety features.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-native-gpu-memory-buffers');\napp.commandLine.appendSwitch('enable-quic');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  'turbo Chromium flags guard'
-);
-
-replaceOnce(
-  "app.setName('Forge Browser');\n",
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
-  'low CPU Chromium flags'
 );
 
 replaceOnce(
