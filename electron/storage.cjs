@@ -61,7 +61,7 @@ function validateSettingsPatch(patch) {
       throw new Error('Permissões inválidas.');
     }
     for (const [key, allowed] of Object.entries(permissions)) {
-      if (!/^https:\/\/[^\s/]+\|(notifications|media|geolocation)$/.test(key) || typeof allowed !== 'boolean') {
+      if (!/^https:\/\/[^\s/]+\|(notifications|media|mediaKeySystem|geolocation)$/.test(key) || typeof allowed !== 'boolean') {
         throw new Error('Permissão de site inválida.');
       }
     }
