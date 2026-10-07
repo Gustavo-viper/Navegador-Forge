@@ -16,8 +16,8 @@ function replaceOnce(find, replace, label) {
 }
 
 replaceOnce(
-  "const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell } = require('electron');",
-  "const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell, Menu } = require('electron');",
+  "const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell, components } = require('electron');",
+  "const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell, components, Menu } = require('electron');",
   'Menu import'
 );
 
