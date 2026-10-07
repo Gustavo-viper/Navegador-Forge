@@ -1,14 +1,15 @@
 {
   "name": "forge-browser",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
     "dev": "node scripts/performance-optimize.cjs && vite",
     "build:web": "vite build",
+    "prepare:icon": "node scripts/prepare-icon.cjs",
     "optimize": "node scripts/performance-optimize.cjs",
-    "build": "npm run optimize && npm run build:web && electron-builder --win nsis --x64 --publish never",
+    "build": "npm run optimize && npm run build:web && npm run prepare:icon && electron-builder --win nsis --x64 --publish never",
     "start": "vite preview --host 0.0.0.0 --port $PORT",
     "preview": "vite preview"
   },
