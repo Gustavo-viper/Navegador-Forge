@@ -14,13 +14,6 @@
   !define MUI_DIRECTORYPAGE_BGCOLOR "F8FAFC"
   !define MUI_STARTMENUPAGE_BGCOLOR "F8FAFC"
 
-  ; Header/sidebar assets generated above.
-  !define MUI_HEADERIMAGE
-  !define MUI_HEADERIMAGE_BITMAP "${BUILD_RESOURCES_DIR}\installerHeader.bmp"
-  !define MUI_HEADERIMAGE_BITMAP_NOSTRETCH
-  !define MUI_WELCOMEFINISHPAGE_BITMAP "${BUILD_RESOURCES_DIR}\installerSidebar.bmp"
-  !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
-
   ; Forge wording for the installation flow.
   !define MUI_PAGE_HEADER_TEXT "Forge Browser"
   !define MUI_PAGE_HEADER_SUBTEXT "Instalação oficial • Forge Studios"
