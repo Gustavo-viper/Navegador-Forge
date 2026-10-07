@@ -27,6 +27,8 @@ contextBridge.exposeInMainWorld('forge', {
   listCookies: () => ipcRenderer.invoke('privacy:cookies'),
   deleteCookiesForDomain: (domain) => ipcRenderer.invoke('privacy:delete-cookies', domain),
   checkForUpdates: () => ipcRenderer.invoke('updates:check'),
+  autoCheckForUpdates: () => ipcRenderer.invoke('updates:auto-check'),
+  installUpdate: () => ipcRenderer.invoke('updates:install'),
   openRelease: () => ipcRenderer.invoke('updates:open-release'),
   openDefaultApps: () => ipcRenderer.invoke('system:default-apps'),
   mediaAction: (tabId, action) => ipcRenderer.invoke('media:action', tabId, action),
@@ -35,4 +37,5 @@ contextBridge.exposeInMainWorld('forge', {
   onDownload: (callback) => subscribe('downloads:changed', callback),
   onShortcut: (callback) => subscribe('app:shortcut', callback),
   onWindowState: (callback) => subscribe('window:state', callback),
+  onUpdateState: (callback) => subscribe('updates:state', callback),
 });
