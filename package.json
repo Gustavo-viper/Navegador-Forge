@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "node scripts/performance-optimize.cjs && node --check electron/main.cjs && vite",
     "build:web": "vite build",
-    "prepare:icon": "node scripts/prepare-icon.cjs",
+    "prepare:icon": "node scripts/generate-icon.cjs",
     "optimize": "node scripts/performance-optimize.cjs",
     "check:main": "node --check electron/main.cjs",
     "build": "npm run optimize && npm run check:main && npm run build:web && npm run prepare:icon && electron-builder --win nsis --x64 --publish never",
@@ -20,6 +20,7 @@
     "electron-updater": "^6.6.2",
     "jpeg-js": "^0.4.4",
     "lucide-react": "^1.52.0",
+    "pngjs": "^7.0.0",
     "react": "19.2.6",
     "react-dom": "19.2.6",
     "tailwind-merge": "3.4.0"
