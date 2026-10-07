@@ -4,7 +4,6 @@ copyright: Copyright (c) Forge Studios
 asar: true
 compression: maximum
 npmRebuild: false
-electronVersion: 41.7.1
 electronLanguages:
   - en-US
   - pt-BR
@@ -19,7 +18,7 @@ files:
 extraMetadata:
   name: forge-browser
   main: electron/main.cjs
-  version: 2.2.0
+  version: 2.2.1
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
