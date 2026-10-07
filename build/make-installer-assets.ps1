@@ -4,7 +4,7 @@ Add-Type -AssemblyName System.Drawing
 $outDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectDir = Split-Path -Parent $outDir
 $packageJsonPath = Join-Path $projectDir 'package.json'
-$packageVersion = '2.2.7'
+$packageVersion = '2.2.8'
 if (Test-Path $packageJsonPath) {
     $package = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
     if ($package.version) { $packageVersion = [string]$package.version }
@@ -38,7 +38,6 @@ function Draw-Glow([System.Drawing.Graphics]$graphics, [int]$x, [int]$y, [int]$s
         $alpha = [Math]::Max(8, [int](70 * ($i / $size)))
         $c = [System.Drawing.Color]::FromArgb($alpha, $color.R, $color.G, $color.B)
         $b = New-Object System.Drawing.SolidBrush($c)
-        $d = $size - $i
         $graphics.FillEllipse($b, $x - $i / 2, $y - $i / 2, $i, $i)
         $b.Dispose()
     }
@@ -57,6 +56,7 @@ $brushNavy = New-Object System.Drawing.SolidBrush($navy)
 $brushNavy2 = New-Object System.Drawing.SolidBrush($navy2)
 $brushOrange = New-Object System.Drawing.SolidBrush($orange)
 $brushOrange2 = New-Object System.Drawing.SolidBrush($orange2)
+$brushOrangeSoft = New-Object System.Drawing.SolidBrush($orangeSoft)
 $brushWhite = New-Object System.Drawing.SolidBrush($white)
 $brushMuted = New-Object System.Drawing.SolidBrush($muted)
 $brushGreen = New-Object System.Drawing.SolidBrush($green)
@@ -84,7 +84,7 @@ $g.DrawString("FORGE STUDIOS  •  v$packageVersion", $fontSub, $brushMuted, 38,
 $g.DrawString('INSTALAÇÃO OFICIAL', $fontSub, $brushOrangeSoft, 38, 43)
 
 $fontF.Dispose(); $fontTitle.Dispose(); $fontSub.Dispose()
-$brushBg.Dispose(); $brushNavy.Dispose(); $brushNavy2.Dispose(); $brushOrange.Dispose(); $brushOrange2.Dispose(); $brushWhite.Dispose(); $brushMuted.Dispose(); $brushGreen.Dispose(); $brushCyan.Dispose(); $penLine.Dispose(); $penOrange.Dispose(); $g.Dispose()
+$brushBg.Dispose(); $brushNavy.Dispose(); $brushNavy2.Dispose(); $brushOrange.Dispose(); $brushOrange2.Dispose(); $brushOrangeSoft.Dispose(); $brushWhite.Dispose(); $brushMuted.Dispose(); $brushGreen.Dispose(); $brushCyan.Dispose(); $penLine.Dispose(); $penOrange.Dispose(); $g.Dispose()
 Save-Bmp $header (Join-Path $outDir 'installerHeader.bmp')
 
 # ============================================================
@@ -101,6 +101,7 @@ $brushNavy2 = New-Object System.Drawing.SolidBrush($navy2)
 $brushNavy3 = New-Object System.Drawing.SolidBrush($navy3)
 $brushOrange = New-Object System.Drawing.SolidBrush($orange)
 $brushOrange2 = New-Object System.Drawing.SolidBrush($orange2)
+$brushOrangeSoft = New-Object System.Drawing.SolidBrush($orangeSoft)
 $brushWhite = New-Object System.Drawing.SolidBrush($white)
 $brushMuted = New-Object System.Drawing.SolidBrush($muted)
 $brushGreen = New-Object System.Drawing.SolidBrush($green)
@@ -167,7 +168,7 @@ $g.DrawString('FORGE STUDIOS', $fontBottom, $brushWhite, 20, 303)
 $g.DrawString("v$packageVersion", $fontTiny, $brushOrangeSoft, 124, 304)
 
 $fontLogo.Dispose(); $fontTitle.Dispose(); $fontBody.Dispose(); $fontBadge.Dispose(); $fontTiny.Dispose(); $fontBottom.Dispose()
-$penLine.Dispose(); $penOrange.Dispose(); $penSoftOrange.Dispose(); $brushBg.Dispose(); $brushNavy.Dispose(); $brushNavy2.Dispose(); $brushNavy3.Dispose(); $brushOrange.Dispose(); $brushOrange2.Dispose(); $brushWhite.Dispose(); $brushMuted.Dispose(); $brushGreen.Dispose(); $brushCyan.Dispose(); $g.Dispose()
+$penLine.Dispose(); $penOrange.Dispose(); $penSoftOrange.Dispose(); $brushBg.Dispose(); $brushNavy.Dispose(); $brushNavy2.Dispose(); $brushNavy3.Dispose(); $brushOrange.Dispose(); $brushOrange2.Dispose(); $brushOrangeSoft.Dispose(); $brushWhite.Dispose(); $brushMuted.Dispose(); $brushGreen.Dispose(); $brushCyan.Dispose(); $g.Dispose()
 Save-Bmp $side (Join-Path $outDir 'installerSidebar.bmp')
 
 Write-Host "Forge installer artwork generated successfully for v$packageVersion."
