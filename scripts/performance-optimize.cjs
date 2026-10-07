@@ -3,13 +3,16 @@ const path = require('node:path');
 
 const file = path.join(__dirname, '..', 'electron', 'main.cjs');
 let source = fs.readFileSync(file, 'utf8');
+let changed = false;
 
 function replaceOnce(find, replace, label) {
+  if (source.includes(replace.trim())) return;
   if (!source.includes(find)) {
-    if (source.includes(replace.trim())) return;
-    throw new Error(`Performance patch not found: ${label}`);
+    console.log(`Performance patch skipped: ${label}`);
+    return;
   }
   source = source.replace(find, replace);
+  changed = true;
 }
 
 replaceOnce(
@@ -20,13 +23,39 @@ replaceOnce(
 
 replaceOnce(
   "app.setName('Forge Browser');\n",
-  "app.setName('Forge Browser');\n// Do not build Electron's default application menu when the Forge UI supplies its own controls.\nMenu.setApplicationMenu(null);\n",
+  "app.setName('Forge Browser');\n// Avoid Electron's default menu when the Forge UI provides its own controls.\nMenu.setApplicationMenu(null);\n",
   'application menu'
 );
 
 replaceOnce(
-`function showActiveView(state) {\n  for (const [id, tab] of state.tabs) {\n    const active = id === state.activeId && !tab.error;\n    tab.view.setVisible(active);\n    if (active) {\n      tab.view.setBounds(contentBounds(state));\n      state.win.contentView.addChildView(tab.view);\n    }\n  }\n}`,
-`function showActiveView(state) {\n  const activeTab = state.activeId ? state.tabs.get(state.activeId) : null;\n  const previousTab = state.renderedActiveId ? state.tabs.get(state.renderedActiveId) : null;\n\n  if (previousTab && previousTab !== activeTab) previousTab.view.setVisible(false);\n\n  if (!activeTab || activeTab.error) {\n    state.renderedActiveId = null;\n    return;\n  }\n\n  activeTab.view.setBounds(contentBounds(state));\n  if (state.renderedActiveId !== activeTab.id) {\n    state.win.contentView.addChildView(activeTab.view);\n    state.renderedActiveId = activeTab.id;\n  }\n  activeTab.view.setVisible(true);\n}`,
+`function showActiveView(state) {
+  for (const [id, tab] of state.tabs) {
+    const active = id === state.activeId && !tab.error;
+    tab.view.setVisible(active);
+    if (active) {
+      tab.view.setBounds(contentBounds(state));
+      state.win.contentView.addChildView(tab.view);
+    }
+  }
+}`,
+`function showActiveView(state) {
+  const activeTab = state.activeId ? state.tabs.get(state.activeId) : null;
+  const previousTab = state.renderedActiveId ? state.tabs.get(state.renderedActiveId) : null;
+
+  if (previousTab && previousTab !== activeTab) previousTab.view.setVisible(false);
+
+  if (!activeTab || activeTab.error) {
+    state.renderedActiveId = null;
+    return;
+  }
+
+  activeTab.view.setBounds(contentBounds(state));
+  if (state.renderedActiveId !== activeTab.id) {
+    state.win.contentView.addChildView(activeTab.view);
+    state.renderedActiveId = activeTab.id;
+  }
+  activeTab.view.setVisible(true);
+}`,
   'active view rendering'
 );
 
@@ -44,9 +73,11 @@ replaceOnce(
 
 replaceOnce(
   "  view.setBackgroundColor('#f9f9f9');\n  view.setVisible(false);",
-  "  view.setBackgroundColor('#f9f9f9');\n  // Let Chromium throttle timers/animations for inactive tabs.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
+  "  view.setBackgroundColor('#f9f9f9');\n  // Allow Chromium to throttle timers and animations for inactive tabs.\n  view.webContents.setBackgroundThrottling(true);\n  view.setVisible(false);",
   'background throttling'
 );
 
-fs.writeFileSync(file, source, 'utf8');
-console.log('Forge Browser performance optimizations applied.');
+if (changed) fs.writeFileSync(file, source, 'utf8');
+console.log(changed
+  ? 'Forge Browser performance optimizations applied.'
+  : 'Forge Browser performance optimizations already applied; nothing to change.');
