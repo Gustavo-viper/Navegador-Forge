@@ -20,8 +20,8 @@ files:
   - '!node_modules/**/*'
 extraMetadata:
   name: forge-browser
-  main: electron/main.cjs
-  version: 2.2.3
+  main: electron/launcher.cjs
+  version: 2.2.4
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
