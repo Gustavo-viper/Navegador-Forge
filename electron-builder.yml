@@ -19,6 +19,7 @@ files:
 extraMetadata:
   name: forge-browser
   main: electron/main.cjs
+  version: 2.1.0
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
@@ -27,7 +28,7 @@ publish:
   repo: Navegador-Forge
   releaseType: release
 win:
-  icon: build/icon.png
+  icon: build/icon.ico
   target:
     - target: nsis
       arch:
