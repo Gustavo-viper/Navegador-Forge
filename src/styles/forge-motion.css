@@ -1,0 +1,94 @@
+/* Animated visual cores and wallpaper atmosphere. Respects .reduced-motion. */
+.forge-app {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.forge-app::before {
+  content: '';
+  position: absolute;
+  inset: -18%;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .34;
+  background:
+    radial-gradient(circle at 18% 20%, var(--accent-soft), transparent 28%),
+    radial-gradient(circle at 82% 78%, color-mix(in srgb, var(--accent) 13%, transparent), transparent 32%);
+  animation: forge-atmosphere 18s ease-in-out infinite alternate;
+}
+
+.forge-app.theme-neon::before {
+  background:
+    radial-gradient(circle at 15% 35%, #f184a022, transparent 26%),
+    radial-gradient(circle at 80% 25%, #8b7dff1c, transparent 28%),
+    radial-gradient(circle at 65% 90%, #40d9ff14, transparent 30%);
+}
+
+.forge-app.theme-cyber::before {
+  background:
+    linear-gradient(120deg, transparent 35%, #75d4c40d 50%, transparent 65%),
+    radial-gradient(circle at 75% 25%, #75d4c420, transparent 30%);
+}
+
+.forge-app.theme-minimal::before { opacity: .18; }
+
+.content-area {
+  position: relative;
+  isolation: isolate;
+}
+
+.content-area::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: .16;
+  background-size: 48px 48px;
+  background-image: linear-gradient(to right, #ffffff08 1px, transparent 1px), linear-gradient(to bottom, #ffffff08 1px, transparent 1px);
+  mask-image: linear-gradient(to bottom, black, transparent 85%);
+  animation: forge-grid-drift 24s linear infinite;
+}
+
+.forge-fullscreen-button {
+  position: fixed;
+  top: 9px;
+  right: 142px;
+  z-index: 100;
+  width: 30px;
+  height: 25px;
+  border: 1px solid #ffffff10;
+  border-radius: 6px;
+  background: #0b1016cc;
+  color: var(--text, #edf1f2);
+  font-size: 18px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  backdrop-filter: blur(10px);
+  transition: transform .18s ease, background .18s ease, border-color .18s ease;
+}
+
+.forge-fullscreen-button:hover {
+  transform: translateY(-1px);
+  background: var(--accent-soft, #f6a65f22);
+  border-color: var(--accent, #f6a65f);
+}
+
+@keyframes forge-atmosphere {
+  from { transform: translate3d(-2%, -1%, 0) scale(1); }
+  to { transform: translate3d(2%, 2%, 0) scale(1.08); }
+}
+
+@keyframes forge-grid-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(48px, 48px, 0); }
+}
+
+.reduced-motion::before,
+.reduced-motion .content-area::before { animation: none !important; }
+
+@media (max-width: 900px) {
+  .forge-fullscreen-button { right: 112px; }
+}
