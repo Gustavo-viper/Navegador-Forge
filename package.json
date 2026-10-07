@@ -5,9 +5,10 @@
   "type": "module",
   "main": "electron/main.cjs",
   "scripts": {
-    "dev": "vite",
+    "dev": "node scripts/performance-optimize.cjs && vite",
     "build:web": "vite build",
-    "build": "npm run build:web && electron-builder --win nsis --x64 --publish never",
+    "optimize": "node scripts/performance-optimize.cjs",
+    "build": "npm run optimize && npm run build:web && electron-builder --win nsis --x64 --publish never",
     "start": "vite preview --host 0.0.0.0 --port $PORT",
     "preview": "vite preview"
   },
