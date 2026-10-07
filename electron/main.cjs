@@ -1,4 +1,4 @@
-const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell } = require('electron');
+const { app, BrowserWindow, WebContentsView, ipcMain, session, dialog, shell, components } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const { randomUUID } = require('node:crypto');
@@ -75,7 +75,12 @@ function setupSession(ses) {
     let allowed = false;
     try {
       const origin = new URL(details.requestingUrl || contents.getURL()).origin;
-      allowed = origin.startsWith('https://') && nativeSettings.sitePermissions[`${origin}|${permission}`] === true;
+      if (permission === 'mediaKeySystem') {
+        // DRM protected media is an HTTPS capability, not a user microphone/camera grant.
+        allowed = origin.startsWith('https://');
+      } else {
+        allowed = origin.startsWith('https://') && nativeSettings.sitePermissions[`${origin}|${permission}`] === true;
+      }
       if (permission === 'notifications' && nativeSettings.blockNotifications) allowed = false;
     } catch { /* Deny malformed origins. */ }
     callback(allowed);
@@ -84,6 +89,7 @@ function setupSession(ses) {
     if (permission === 'notifications' && nativeSettings.blockNotifications) return false;
     try {
       const origin = new URL(requestingOrigin || contents?.getURL()).origin;
+      if (permission === 'mediaKeySystem') return origin.startsWith('https://');
       return origin.startsWith('https://') && nativeSettings.sitePermissions[`${origin}|${permission}`] === true;
     } catch { return false; }
   });
@@ -239,7 +245,7 @@ function createExternalTab(state, id, privateTab) {
   const view = new WebContentsView({
     webPreferences: {
       partition, sandbox: true, contextIsolation: true, nodeIntegration: false,
-      webSecurity: true, webviewTag: false,
+      webSecurity: true, webviewTag: false, plugins: true,
     },
   });
   view.setBackgroundColor('#f9f9f9');
@@ -471,9 +477,14 @@ function registerIpc() {
   });
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   nativeSettings = loadNativeSettings();
   registerIpc();
+  try {
+    await components.whenReady();
+  } catch (error) {
+    console.warn('[Forge DRM] Widevine component initialization failed:', error?.message || error);
+  }
   createWindow();
   setupAutoUpdater();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
