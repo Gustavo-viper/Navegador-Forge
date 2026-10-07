@@ -4,7 +4,7 @@ Add-Type -AssemblyName System.Drawing
 $outDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectDir = Split-Path -Parent $outDir
 $packageJsonPath = Join-Path $projectDir 'package.json'
-$packageVersion = '2.2.2'
+$packageVersion = '2.2.4'
 if (Test-Path $packageJsonPath) {
     $package = Get-Content $packageJsonPath -Raw | ConvertFrom-Json
     if ($package.version) { $packageVersion = [string]$package.version }
