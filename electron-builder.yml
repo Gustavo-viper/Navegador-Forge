@@ -4,6 +4,9 @@ copyright: Copyright (c) Forge Studios
 asar: true
 compression: maximum
 npmRebuild: false
+electronVersion: 41.10.7+wvcus
+electronDownload:
+  mirror: https://github.com/castlabs/electron-releases/releases/download/v
 electronLanguages:
   - en-US
   - pt-BR
