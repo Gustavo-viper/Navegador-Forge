@@ -93,19 +93,9 @@
     !define MUI_FINISHPAGE_RUN_TEXT "Abrir o Forge Browser agora"
   !endif
 
-  ; More Forge-like button labels.
-  !ifndef MUI_BUTTON_NEXT
-    !define MUI_BUTTON_NEXT "Avançar >"
-  !endif
-  !ifndef MUI_BUTTON_BACK
-    !define MUI_BUTTON_BACK "< Voltar"
-  !endif
-  !ifndef MUI_BUTTON_CANCEL
-    !define MUI_BUTTON_CANCEL "Cancelar"
-  !endif
-  !ifndef MUI_BUTTON_FINISH
-    !define MUI_BUTTON_FINISH "Concluir"
-  !endif
+  ; Forge button labels in the standard NSIS controls.
+  MiscButtonText "< Voltar" "Avançar >" "Cancelar" "Fechar"
+  InstallButtonText "Instalar Forge"
 
   !ifndef MUI_ABORTWARNING
     !define MUI_ABORTWARNING
