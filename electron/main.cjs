@@ -5,6 +5,7 @@ const { randomUUID } = require('node:crypto');
 const { isWebUrl, resolveAddress, describeLoadError } = require('./navigation.cjs');
 const { readJson, writeJson, loadNativeSettings, validateSettingsPatch } = require('./storage.cjs');
 const { checkLatestRelease } = require('./updates.cjs');
+const { setupAutoUpdater } = require('./auto-updater.cjs');
 
 app.setName('Forge Browser');
 if (process.platform === 'win32') app.setAppUserModelId('studios.forge.browser');
@@ -85,7 +86,6 @@ function setupSession(ses) {
     } catch { return false; }
   });
 
-  // This is a deliberately small known-domain filter, not a claim of comprehensive ad blocking.
   ses.webRequest.onBeforeRequest({ urls: ['http://*/*', 'https://*/*'] }, (details, callback) => {
     if (!nativeSettings.blockTrackers || details.resourceType === 'mainFrame') return callback({});
     try {
@@ -476,6 +476,7 @@ app.whenReady().then(() => {
   setupSession(session.fromPartition('persist:forge-web'));
   registerIpc();
   createWindow();
+  setupAutoUpdater();
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });
 });
 
