@@ -19,7 +19,6 @@ files:
 extraMetadata:
   name: forge-browser
   main: electron/main.cjs
-  version: 2.0.0
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
