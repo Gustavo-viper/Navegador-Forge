@@ -34,6 +34,24 @@ replaceOnce(
 );
 
 replaceOnce(
+  "const trackerHosts = new Set([",
+  "const trackerHosts = [",
+  'tracker list allocation'
+);
+
+replaceOnce(
+  "  'hotjar.com', 'segment.io', 'mixpanel.com', 'adsrvr.org',\n]);",
+  "  'hotjar.com', 'segment.io', 'mixpanel.com', 'adsrvr.org',\n];",
+  'tracker list closing'
+);
+
+replaceOnce(
+  "const blocked = [...trackerHosts].some((domain) => host === domain || host.endsWith(`.${domain}`));",
+  "const blocked = trackerHosts.some((domain) => host === domain || host.endsWith(`.${domain}`));",
+  'tracker request allocation'
+);
+
+replaceOnce(
 `function showActiveView(state) {
   for (const [id, tab] of state.tabs) {
     const active = id === state.activeId && !tab.error;
@@ -120,5 +138,5 @@ replaceOnce(
 
 if (changed) fs.writeFileSync(file, source, 'utf8');
 console.log(changed
-  ? 'Forge Browser performance and automatic-update optimizations applied.'
+  ? 'Forge Browser v1.2 performance and automatic-update optimizations applied.'
   : 'Forge Browser performance and automatic-update optimizations already applied; nothing to change.');
