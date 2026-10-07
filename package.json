@@ -1,16 +1,17 @@
 {
   "name": "forge-browser",
   "private": true,
-  "version": "2.2.5",
+  "version": "2.2.6",
   "type": "module",
   "main": "electron/launcher.cjs",
   "scripts": {
-    "dev": "node scripts/performance-optimize.cjs && node --check electron/launcher.cjs && node --check electron/main.cjs && vite",
+    "dev": "node scripts/performance-optimize.cjs && node scripts/browser-compatibility.cjs && node --check electron/launcher.cjs && node --check electron/main.cjs && vite",
     "build:web": "vite build",
     "prepare:icon": "node scripts/generate-icon.cjs",
     "optimize": "node scripts/performance-optimize.cjs",
+    "compatibility": "node scripts/browser-compatibility.cjs",
     "check:main": "node --check electron/launcher.cjs && node --check electron/main.cjs",
-    "build": "npm run optimize && npm run check:main && npm run build:web && npm run prepare:icon && electron-builder --win nsis --x64 --publish never",
+    "build": "npm run optimize && npm run compatibility && npm run check:main && npm run build:web && npm run prepare:icon && electron-builder --win nsis --x64 --publish never",
     "start": "vite preview --host 0.0.0.0 --port $PORT",
     "preview": "vite preview"
   },
