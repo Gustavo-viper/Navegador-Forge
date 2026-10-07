@@ -46,6 +46,9 @@ jobs:
         run: npm run build
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_GOOGLE_CLIENT_ID: ${{ secrets.VITE_GOOGLE_CLIENT_ID }}
 
       - name: 🔎 Descobrir versão do Forge Browser
         id: version
