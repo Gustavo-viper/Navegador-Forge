@@ -28,6 +28,12 @@ replaceOnce(
 );
 
 replaceOnce(
+  "const { checkLatestRelease } = require('./updates.cjs');",
+  "const { checkLatestRelease } = require('./updates.cjs');\nconst { setupAutoUpdater, checkForUpdates, installUpdate } = require('./auto-updater.cjs');",
+  'automatic updater import'
+);
+
+replaceOnce(
 `function showActiveView(state) {
   for (const [id, tab] of state.tabs) {
     const active = id === state.activeId && !tab.error;
@@ -77,7 +83,42 @@ replaceOnce(
   'background throttling'
 );
 
+replaceOnce(
+`  ipcMain.handle('updates:open-release', async (event) => {
+    shellState(event);
+    if (!latestRelease?.url || !/^https:\/\/github\.com\//.test(latestRelease.url)) return false;
+    await shell.openExternal(latestRelease.url);
+    return true;
+  });`,
+`  ipcMain.handle('updates:open-release', async (event) => {
+    shellState(event);
+    if (!latestRelease?.url || !/^https:\/\/github\.com\//.test(latestRelease.url)) return false;
+    await shell.openExternal(latestRelease.url);
+    return true;
+  });
+  ipcMain.handle('updates:auto-check', (event) => {
+    shellState(event);
+    return checkForUpdates();
+  });
+  ipcMain.handle('updates:install', (event) => {
+    shellState(event);
+    return installUpdate();
+  });`,
+  'automatic update IPC'
+);
+
+replaceOnce(
+`  registerIpc();
+  createWindow();
+  app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });`,
+`  registerIpc();
+  createWindow();
+  setupAutoUpdater();
+  app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); });`,
+  'automatic updater startup'
+);
+
 if (changed) fs.writeFileSync(file, source, 'utf8');
 console.log(changed
-  ? 'Forge Browser performance optimizations applied.'
-  : 'Forge Browser performance optimizations already applied; nothing to change.');
+  ? 'Forge Browser performance and automatic-update optimizations applied.'
+  : 'Forge Browser performance and automatic-update optimizations already applied; nothing to change.');
