@@ -1,7 +1,7 @@
 {
   "name": "forge-browser",
   "private": true,
-  "version": "2.2.7",
+  "version": "2.2.8",
   "type": "module",
   "main": "electron/launcher.cjs",
   "scripts": {
