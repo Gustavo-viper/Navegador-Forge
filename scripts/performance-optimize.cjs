@@ -23,13 +23,13 @@ replaceOnce(
 
 replaceOnce(
   "app.setName('Forge Browser');\n",
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
   'low CPU Chromium flags'
 );
 
 replaceOnce(
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
-  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling');\n",
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
+  "app.setName('Forge Browser');\n// Reduce CPU usage from Chromium rendering/background work while keeping hardware acceleration enabled.\napp.commandLine.appendSwitch('enable-gpu-rasterization');\napp.commandLine.appendSwitch('enable-zero-copy');\napp.commandLine.appendSwitch('enable-features', 'CalculateNativeWinOcclusion,IntensiveWakeUpThrottling,BackForwardCache');\n",
   'low CPU Chromium flags guard'
 );
 
