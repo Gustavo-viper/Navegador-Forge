@@ -2,8 +2,12 @@ appId: studios.forge.browser
 productName: Forge Browser
 copyright: Copyright (c) Forge Studios
 asar: true
+compression: maximum
 npmRebuild: false
 electronVersion: 41.7.1
+electronLanguages:
+  - en-US
+  - pt-BR
 directories:
   output: release
   buildResources: build
@@ -15,7 +19,7 @@ files:
 extraMetadata:
   name: forge-browser
   main: electron/main.cjs
-  version: 1.0.0
+  version: 1.2.0
   description: Forge Browser by Forge Studios
   author: Forge Studios
 publish:
@@ -24,6 +28,7 @@ publish:
   repo: Navegador-Forge
   releaseType: release
 win:
+  icon: build/icon.png
   target:
     - target: nsis
       arch:
