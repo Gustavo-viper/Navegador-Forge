@@ -1,0 +1,103 @@
+/* Forge visual personalization layer. Animations are GPU-friendly transforms/gradients. */
+
+/* Animated wallpapers */
+.home-page.wallpaper-ember .home-photo {
+  animation: forge-ember-drift 18s ease-in-out infinite alternate;
+  transform-origin: 50% 50%;
+  will-change: transform, filter;
+}
+
+.home-page.wallpaper-noir::before,
+.home-page.wallpaper-grid::before {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+  z-index: 0;
+  opacity: .8;
+  will-change: transform, background-position;
+}
+
+.home-page.wallpaper-noir::before {
+  background:
+    radial-gradient(circle at 20% 25%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 35%),
+    radial-gradient(circle at 80% 75%, #ffffff08, transparent 32%),
+    linear-gradient(135deg, #05070b, #10141a 55%, #06080c);
+  animation: forge-noir-flow 16s ease-in-out infinite alternate;
+}
+
+.home-page.wallpaper-grid::before {
+  background:
+    linear-gradient(var(--accent-soft) 1px, transparent 1px),
+    linear-gradient(90deg, var(--accent-soft) 1px, transparent 1px),
+    radial-gradient(circle at 50% 40%, var(--accent-soft), transparent 48%);
+  background-size: 44px 44px, 44px 44px, 100% 100%;
+  animation: forge-grid-pan 14s linear infinite;
+}
+
+.home-page.wallpaper-custom .home-photo {
+  animation: forge-custom-breathe 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.home-photo, .home-shade { z-index: 1; }
+.home-topline, .home-main, .home-footer { position: relative; z-index: 2; }
+
+/* Make the existing Forge theme buttons visibly change the whole chrome. */
+.theme-neon .titlebar,
+.theme-neon .toolbar,
+.theme-neon .sidebar { box-shadow: inset 0 -1px 0 #f184a022; }
+.theme-cyber .titlebar,
+.theme-cyber .toolbar,
+.theme-cyber .sidebar { box-shadow: inset 0 -1px 0 #75d4c422; }
+.theme-minimal .titlebar,
+.theme-minimal .toolbar,
+.theme-minimal .sidebar { box-shadow: inset 0 -1px 0 #dbb88e22; }
+
+/* Stronger visual state for the selected theme. */
+.theme-choices .theme-choice.selected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 1px var(--accent-soft), 0 10px 30px var(--accent-soft);
+  transform: translateY(-1px);
+}
+
+/* Google login / account presentation */
+.google-login-note {
+  display: grid;
+  gap: 5px;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+.google-login-note strong { color: var(--text); font-size: 12px; }
+.google-login-note span { color: var(--muted); font-size: 11px; line-height: 1.55; }
+
+/* Fullscreen visual mode. */
+.forge-app.fullscreen-ui .titlebar { display: none; }
+.forge-app.fullscreen-ui .toolbar { height: 56px; flex-basis: 56px; }
+
+@keyframes forge-ember-drift {
+  0% { transform: scale(1.02) translate3d(-.4%, -.2%, 0); filter: saturate(.96) brightness(.96); }
+  100% { transform: scale(1.08) translate3d(.6%, .35%, 0); filter: saturate(1.08) brightness(1.03); }
+}
+@keyframes forge-custom-breathe {
+  0% { transform: scale(1.01); }
+  100% { transform: scale(1.055); }
+}
+@keyframes forge-noir-flow {
+  0% { transform: translate3d(-1.5%, -1%, 0) scale(1.02); }
+  100% { transform: translate3d(1.5%, 1%, 0) scale(1.06); }
+}
+@keyframes forge-grid-pan {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(44px, 44px, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-page.wallpaper-ember .home-photo,
+  .home-page.wallpaper-custom .home-photo,
+  .home-page.wallpaper-noir::before,
+  .home-page.wallpaper-grid::before { animation: none !important; }
+}
