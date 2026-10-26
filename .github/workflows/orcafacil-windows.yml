@@ -1,0 +1,37 @@
+name: Build OrçaFácil Windows
+on:
+  push:
+    branches: [orcafacil-windows]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24.x'
+      - name: Build icon
+        shell: pwsh
+        run: magick orcafacil-windows/logo.svg -define icon:auto-resize=256,128,64,48,32,16 orcafacil-windows/OrcaFacil.ico
+      - name: Build installer
+        shell: pwsh
+        working-directory: orcafacil-windows
+        run: |
+          $env:GOOS='windows'
+          $env:GOARCH='amd64'
+          $env:CGO_ENABLED='0'
+          $env:GO111MODULE='off'
+          go build -trimpath -ldflags '-H=windowsgui -s -w' -o OrcaFacil-Instalador.exe .
+      - name: Commit installer artifact
+        shell: pwsh
+        run: |
+          git config user.name 'OrçaFácil Builder'
+          git config user.email 'actions@users.noreply.github.com'
+          git add orcafacil-windows/OrcaFacil-Instalador.exe orcafacil-windows/OrcaFacil.ico
+          git commit -m 'Build OrçaFácil Windows installer' || echo 'No changes to commit'
+          git push
