@@ -4,5 +4,6 @@ import tailwindcss from "@tailwindcss/vite";
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  preview: { allowedHosts: [".up.railway.app"] },
   test: { environment: "node" },
 } as Parameters<typeof defineConfig>[0]);
